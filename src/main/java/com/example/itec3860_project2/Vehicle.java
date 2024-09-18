@@ -1,4 +1,4 @@
-package com.example.itec3860_project1;
+package com.example.itec3860_project2;
 
 import java.io.Serializable;
 

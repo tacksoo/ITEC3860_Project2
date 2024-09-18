@@ -1,22 +1,25 @@
-package com.example.itec3860_project1;
+package com.example.itec3860_project2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.coyote.Request;
 import org.springframework.boot.system.ApplicationHome;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class VehicleController {
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private ApplicationHome home = new ApplicationHome(Itec3860Project1Application.class);
+    private ApplicationHome home = new ApplicationHome(Itec3860Project2Application.class);
 
 
     @RequestMapping(value="/addVehicle", method= RequestMethod.POST)
@@ -42,6 +45,29 @@ public class VehicleController {
             }
         }
         return new Vehicle(0,"",0,0);
+    }
+
+    @RequestMapping(value="/deleteVehicle/{id}", method=RequestMethod.DELETE)
+    public ResponseEntity<String> deleteVehicle(@PathVariable int id) throws IOException {
+        File file = new File(home.getDir() + "/vehicles.txt");
+        List<String> lines = FileUtils.readLines(file, "UTF-8");
+        List<String> newlines = new ArrayList<>();
+        boolean found = false;
+        for(String line : lines){
+            Vehicle v = mapper.readValue(line, Vehicle.class);
+            if(v.getId() != id){
+                newlines.add(line);
+            } else {
+                found = true;
+            }
+        }
+        FileUtils.writeLines(file, newlines, "\n");
+        if(found){
+            return new ResponseEntity<>(HttpStatus.FOUND);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
 
     @RequestMapping(value="/updateVehicle", method=RequestMethod.PUT)
